@@ -2,29 +2,12 @@
  * Author: fasion
  * Created time: 2020-10-27 20:22:53
  * Last Modified by: fasion
- * Last Modified time: 2020-10-28 10:25:33
+ * Last Modified time: 2021-01-13 17:10:10
  */
 
 #include <argp.h>
-#include "util.h"
 
-/**
- *  Convert readable MAC address to binary format.
- *
- *  Arguments
- *      a: buffer for readable format, like "08:00:27:c8:04:83".
- *
- *      n: buffer for binary format, 6 bytes at least.
- *
- *  Returns
- *      0 if success, -1 if error.
- **/
-int mac_aton(const char *a, unsigned char *n) {
-    int matches = sscanf(a, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", n, n+1, n+2,
-                         n+3, n+4, n+5);
-
-    return (6 == matches ? 0 : -1);
-}
+#include "argparse.h"
 
 
 /**
@@ -71,7 +54,7 @@ static error_t opt_handler(int key, char *arg, struct argp_state *state) {
  *  Returns
  *      Pointer to struct arguments if success, NULL if error.
  **/
-struct cmdline_arguments const *parse_arguments(int argc, char *argv[]) {
+const struct cmdline_arguments *parse_arguments(int argc, char *argv[]) {
     // docs for program and options
     static char const doc[] = "send_ether: send data through ethernet frame";
     static char const args_doc[] = "";
@@ -93,7 +76,7 @@ struct cmdline_arguments const *parse_arguments(int argc, char *argv[]) {
         { 0 }
     };
 
-    static struct argp const argp = {
+    static const struct argp argp = {
         options,
         opt_handler,
         args_doc,

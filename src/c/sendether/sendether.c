@@ -2,60 +2,22 @@
  * Author: fasion
  * Created time: 2020-10-27 19:52:25
  * Last Modified by: fasion
- * Last Modified time: 2021-01-12 17:11:17
+ * Last Modified time: 2021-01-13 17:13:01
  */
 
 #include <arpa/inet.h>
 #include <linux/if_packet.h>
 #include <net/if.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <unistd.h>
-#include "util.h"
 
-#define MAX_ETHERNET_FRAME_SIZE 1514
-#define MAX_ETHERNET_DATA_SIZE 1500
+#include "argparse.h"
+#include "link.h"
 
 #define ETHERNET_HEADER_SIZE 14
-#define ETHERNET_DST_ADDR_OFFSET 0
-#define ETHERNET_SRC_ADDR_OFFSET 6
-#define ETHERNET_TYPE_OFFSET 12
-#define ETHERNET_DATA_OFFSET 14
-
-#define MAC_BYTES 6
-
-
-/**
- *  Fetch MAC address of given iface.
- *
- *  Arguments
- *      s: socket for ioctl, optional.
- *
- *      iface: name of given iface.
- *
- *      mac: buffer for binary MAC address, 6 bytes at least.
- *
- *  Returns
- *      0 if success, -1 if error.
- **/
-int fetch_iface_mac(int s, char const *iface, unsigned char *mac) {
-    // fill iface name to struct ifreq
-    struct ifreq ifr;
-    strncpy(ifr.ifr_name, iface, 15);
-
-    // call ioctl to get hardware address
-    if (ioctl(s, SIOCGIFHWADDR, &ifr) == -1) {
-        return -1;
-    }
-
-    // copy MAC address to given buffer
-    memcpy(mac, ifr.ifr_hwaddr.sa_data, MAC_BYTES);
-
-    return 0;
-}
+#define MAX_ETHERNET_DATA_SIZE 1500
 
 
 /**
@@ -69,7 +31,7 @@ int fetch_iface_mac(int s, char const *iface, unsigned char *mac) {
  *  Returns
  *      Iface index(which is greater than 0) if success, -1 if error.
  **/
-int fetch_iface_index(int s, char const *iface) {
+int fetch_iface_index(int s, const char *iface) {
     // fill iface name to struct ifreq
     struct ifreq ifr;
     strncpy(ifr.ifr_name, iface, 15);
@@ -94,7 +56,7 @@ int fetch_iface_index(int s, char const *iface) {
  *  Returns
  *      0 if success, -1 if error.
  **/
-int bind_iface(int s, char const *iface) {
+int bind_iface(int s, const char *iface) {
     // fetch iface index
     int if_index = fetch_iface_index(s, iface);
     if (if_index == -1) {
@@ -120,7 +82,7 @@ int bind_iface(int s, char const *iface) {
 /**
  * struct for an ethernet frame
  **/
-struct ethernet_frame {
+struct __attribute__((__packed__)) ethernet_frame {
     // destination MAC address, 6 bytes
     unsigned char dst_addr[6];
 
@@ -133,6 +95,48 @@ struct ethernet_frame {
     // data
     unsigned char data[MAX_ETHERNET_DATA_SIZE];
 };
+
+
+/**
+ * Pack ethernet frame
+ *
+ *  Arguments:
+ *      fr: source mac address
+ *
+ *      to: destination mac address
+ *
+ *      type: ether type
+ *
+ *      data: data for sending
+ *
+ *      data_length: length of data
+ *
+ *      frame: frame to pack
+ *
+ *  Returns:
+ *      Frame size
+ **/
+int pack_ether_frame(const unsigned char *fr, const unsigned char *to, short type,
+        const char *data, int data_length, struct ethernet_frame *frame) {
+    // fill destination MAC address
+    memcpy(frame->dst_addr, to, 6);
+
+    // fill source MAC address
+    memcpy(frame->src_addr, fr, 6);
+
+    // fill type
+    frame->type = htons(type);
+
+    // truncate if data is to long
+    if (data_length > MAX_ETHERNET_DATA_SIZE) {
+        data_length = MAX_ETHERNET_DATA_SIZE;
+    }
+
+    // fill data
+    memcpy(frame->data, data, data_length);
+
+    return ETHERNET_HEADER_SIZE + data_length;
+}
 
 
 /**
@@ -152,30 +156,13 @@ struct ethernet_frame {
  *  Returns
  *      0 if success, -1 if error.
  **/
-int send_ether(int s, unsigned char const *fr, unsigned char const *to,
-        short type, char const *data) {
+int send_ether_frame(int s, const unsigned char *fr, const unsigned char *to,
+        short type, const char *data) {
     // construct ethernet frame, which can be 1514 bytes at most
     struct ethernet_frame frame;
 
-    // fill destination MAC address
-    memcpy(frame.dst_addr, to, MAC_BYTES);
-
-    // fill source MAC address
-    memcpy(frame.src_addr, fr, MAC_BYTES);
-
-    // fill type
-    frame.type = htons(type);
-
-    // truncate if data is to long
-    int data_size = strlen(data);
-    if (data_size > MAX_ETHERNET_DATA_SIZE) {
-        data_size = MAX_ETHERNET_DATA_SIZE;
-    }
-
-    // fill data
-    memcpy(frame.data, data, data_size);
-
-    int frame_size = ETHERNET_HEADER_SIZE + data_size;
+    // pack frame
+    int frame_size = pack_ether_frame(fr, to, type, data, strlen(data), &frame);
 
     if (sendto(s, &frame, frame_size, 0, NULL, 0) == -1) {
         return -1;
@@ -187,7 +174,7 @@ int send_ether(int s, unsigned char const *fr, unsigned char const *to,
 
 int main(int argc, char *argv[]) {
     // parse command line options to struct arguments
-    struct cmdline_arguments const *arguments = parse_arguments(argc, argv);
+    const struct cmdline_arguments *arguments = parse_arguments(argc, argv);
     if (arguments == NULL) {
         fprintf(stderr, "Bad command line options given\n");
         return -1;
@@ -221,12 +208,6 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    // bind socket with iface
-    if (bind_iface(s, arguments->iface) == -1) {
-        perror("Fail to bind socket with iface: ");
-        return -1;
-    }
-
     // fetch MAC address of given iface, which is the source address
     unsigned char fr[6];
     if (fetch_iface_mac(s, arguments->iface, fr) == -1) {
@@ -234,8 +215,14 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    // bind socket with iface
+    if (bind_iface(s, arguments->iface) == -1) {
+        perror("Fail to bind socket with iface: ");
+        return -1;
+    }
+
     // send data
-    if (send_ether(s, fr, to, arguments->type, arguments->data) == -1) {
+    if (send_ether_frame(s, fr, to, arguments->type, arguments->data) == -1) {
         perror("Fail to send ethernet frame: ");
         return -1;
     }
