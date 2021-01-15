@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2020-10-27 19:52:25
  * Last Modified by: fasion
- * Last Modified time: 2021-01-13 17:13:01
+ * Last Modified time: 2021-01-13 17:28:21
  */
 
 #include <arpa/inet.h>
@@ -164,6 +164,7 @@ int send_ether_frame(int s, const unsigned char *fr, const unsigned char *to,
     // pack frame
     int frame_size = pack_ether_frame(fr, to, type, data, strlen(data), &frame);
 
+    // send the frame
     if (sendto(s, &frame, frame_size, 0, NULL, 0) == -1) {
         return -1;
     }
