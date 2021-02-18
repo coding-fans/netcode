@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2020-10-27 19:52:25
  * Last Modified by: fasion
- * Last Modified time: 2021-01-13 17:28:21
+ * Last Modified time: 2021-02-18 15:22:27
  */
 
 #include <arpa/inet.h>
@@ -18,31 +18,6 @@
 
 #define ETHERNET_HEADER_SIZE 14
 #define MAX_ETHERNET_DATA_SIZE 1500
-
-
-/**
- *  Fetch index of given iface.
- *
- *  Arguments
- *      iface: name of given iface.
- *
- *      s: socket for ioctl, optional.
- *
- *  Returns
- *      Iface index(which is greater than 0) if success, -1 if error.
- **/
-int fetch_iface_index(int s, const char *iface) {
-    // fill iface name to struct ifreq
-    struct ifreq ifr;
-    strncpy(ifr.ifr_name, iface, 15);
-
-    // call ioctl system call to fetch iface index
-    if (ioctl(s, SIOCGIFINDEX, &ifr) == -1 ) {
-        return -1;
-    }
-
-    return ifr.ifr_ifindex;
-}
 
 
 /**
@@ -204,7 +179,7 @@ int main(int argc, char *argv[]) {
 
     // create socket for communication
     int s = socket(PF_PACKET, SOCK_RAW | SOCK_CLOEXEC, 0);
-    if (-1 == s) {
+    if (s == -1) {
         perror("Fail to create socket: ");
         return -1;
     }

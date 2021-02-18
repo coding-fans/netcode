@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2021-01-13 15:45:07
  * Last Modified by: fasion
- * Last Modified time: 2021-02-18 15:22:32
+ * Last Modified time: 2021-02-18 15:21:15
  */
 
 #include <net/if.h>
@@ -60,7 +60,6 @@ int fetch_iface_mac(int s, const char *iface, unsigned char *mac) {
 
     return 0;
 }
-
 
 /**
  *  Fetch index of given iface.
