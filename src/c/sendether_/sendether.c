@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2020-10-27 19:52:25
  * Last Modified by: fasion
- * Last Modified time: 2021-02-18 15:38:34
+ * Last Modified time: 2021-02-19 14:02:22
  */
 
 #include <arpa/inet.h>
@@ -16,8 +16,8 @@
 #include "argparse.h"
 #include "link.h"
 
-#define ETHERNET_HEADER_SIZE 14
-#define MAX_ETHERNET_DATA_SIZE 1500
+#define FRAME_HEADER_SIZE 14
+#define MAX_FRAME_DATA_SIZE 1500
 
 
 /**
@@ -73,6 +73,8 @@ int pack_ether_frame(const unsigned char *fr, const unsigned char *to, short typ
  *  Send data through given iface by ethernet protocol, using raw socket.
  *
  *  Arguments
+ *      s: socket for sending.
+ *
  *      iface: name of iface for sending.
  *
  *      to: destination MAC address, in binary format.
@@ -80,8 +82,6 @@ int pack_ether_frame(const unsigned char *fr, const unsigned char *to, short typ
  *      type: protocol type.
  *
  *      data: data to send, ends with '\0'.
- *
- *      s: socket for ioctl, optional.
  *
  *  Returns
  *      0 if success, -1 if error.

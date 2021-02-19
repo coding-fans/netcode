@@ -16,8 +16,8 @@
 #include "argparse.h"
 #include "link.h"
 
-#define ETHERNET_HEADER_SIZE 14
-#define MAX_ETHERNET_DATA_SIZE 1500
+#define FRAME_HEADER_SIZE 14
+#define MAX_FRAME_DATA_SIZE 1500
 
 
 /**
@@ -68,7 +68,7 @@ struct __attribute__((__packed__)) ethernet_frame {
     unsigned short type;
 
     // data
-    unsigned char data[MAX_ETHERNET_DATA_SIZE];
+    unsigned char data[MAX_FRAME_DATA_SIZE];
 };
 
 
@@ -103,14 +103,14 @@ int pack_ether_frame(const unsigned char *fr, const unsigned char *to, short typ
     frame->type = htons(type);
 
     // truncate if data is to long
-    if (data_length > MAX_ETHERNET_DATA_SIZE) {
-        data_length = MAX_ETHERNET_DATA_SIZE;
+    if (data_length > MAX_FRAME_DATA_SIZE) {
+        data_length = MAX_FRAME_DATA_SIZE;
     }
 
     // fill data
     memcpy(frame->data, data, data_length);
 
-    return ETHERNET_HEADER_SIZE + data_length;
+    return FRAME_HEADER_SIZE + data_length;
 }
 
 
@@ -118,6 +118,8 @@ int pack_ether_frame(const unsigned char *fr, const unsigned char *to, short typ
  *  Send data through given iface by ethernet protocol, using raw socket.
  *
  *  Arguments
+ *      s: socket for sending.
+ *
  *      iface: name of iface for sending.
  *
  *      to: destination MAC address, in binary format.
@@ -125,8 +127,6 @@ int pack_ether_frame(const unsigned char *fr, const unsigned char *to, short typ
  *      type: protocol type.
  *
  *      data: data to send, ends with '\0'.
- *
- *      s: socket for ioctl, optional.
  *
  *  Returns
  *      0 if success, -1 if error.
@@ -180,26 +180,26 @@ int main(int argc, char *argv[]) {
     // create socket for communication
     int s = socket(PF_PACKET, SOCK_RAW | SOCK_CLOEXEC, 0);
     if (s == -1) {
-        perror("Fail to create socket: ");
+        perror("Fail to create socket");
         return -1;
     }
 
     // fetch MAC address of given iface, which is the source address
     unsigned char fr[6];
     if (fetch_iface_mac(s, arguments->iface, fr) == -1) {
-        perror("Fail to fetch mac of iface: ");
+        perror("Fail to fetch mac of iface");
         return -1;
     }
 
     // bind socket with iface
     if (bind_iface(s, arguments->iface) == -1) {
-        perror("Fail to bind socket with iface: ");
+        perror("Fail to bind socket with iface");
         return -1;
     }
 
     // send data
     if (send_ether_frame(s, fr, to, arguments->type, arguments->data) == -1) {
-        perror("Fail to send ethernet frame: ");
+        perror("Fail to send ethernet frame");
         return -1;
     }
 
