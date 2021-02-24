@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2021-02-01 14:30:04
  * Last Modified by: fasion
- * Last Modified time: 2021-02-18 15:12:10
+ * Last Modified time: 2021-02-22 17:17:22
  */
 
 #include <arpa/inet.h>
@@ -15,7 +15,7 @@
 
 #define MAGIC "1234567890"
 #define MAGIC_LEN 11
-#define MAX_IP_LEN 65536
+#define IP_BUFFER_SIZE 65536
 #define RECV_TIMEOUT_USEC 100000
 
 struct __attribute__((__packed__)) icmp_echo {
@@ -32,15 +32,13 @@ struct __attribute__((__packed__)) icmp_echo {
     char magic[MAGIC_LEN];
 };
 
-double get_timestamp()
-{
+double get_timestamp() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return tv.tv_sec + ((double)tv.tv_usec) / 1000000;
 }
 
-uint16_t calculate_checksum(unsigned char* buffer, int bytes)
-{
+uint16_t calculate_checksum(unsigned char* buffer, int bytes) {
     uint32_t checksum = 0;
     unsigned char* end = buffer + bytes;
 
@@ -69,8 +67,7 @@ uint16_t calculate_checksum(unsigned char* buffer, int bytes)
     return checksum & 0xffff;
 }
 
-int send_echo_request(int sock, struct sockaddr_in* addr, int ident, int seq)
-{
+int send_echo_request(int sock, struct sockaddr_in* addr, int ident, int seq) {
     // allocate memory for icmp packet
     struct icmp_echo icmp;
     bzero(&icmp, sizeof(icmp));
@@ -102,10 +99,9 @@ int send_echo_request(int sock, struct sockaddr_in* addr, int ident, int seq)
     return 0;
 }
 
-int recv_echo_reply(int sock, int ident)
-{
+int recv_echo_reply(int sock, int ident) {
     // allocate buffer
-    unsigned char buffer[MAX_IP_LEN];
+    unsigned char buffer[IP_BUFFER_SIZE];
     struct sockaddr_in peer_addr;
 
     // receive another packet
@@ -145,8 +141,7 @@ int recv_echo_reply(int sock, int ident)
     return 0;
 }
 
-int ping(const char *ip)
-{
+int ping(const char *ip) {
     // for store destination address
     struct sockaddr_in addr;
     bzero(&addr, sizeof(addr));
@@ -206,8 +201,7 @@ int ping(const char *ip)
     return 0;
 }
 
-int main(int argc, const char* argv[])
-{
+int main(int argc, const char* argv[]) {
     if (argc < 2) {
         fprintf(stderr, "no host specified");
         return -1;
