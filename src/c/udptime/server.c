@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2021-02-23 16:11:52
  * Last Modified by: fasion
- * Last Modified time: 2021-02-24 19:49:11
+ * Last Modified time: 2021-03-17 13:29:56
  */
 
 #include <arpa/inet.h>
@@ -72,6 +72,7 @@ int main(int argc, char *argv[]) {
 
         // buffer for storing reply
         struct time_reply reply;
+        bzero(&reply);
 
         // fetch current time
         time_t now;
@@ -85,11 +86,12 @@ int main(int argc, char *argv[]) {
         }
 
         // format time
-        size_t data_bytes = strftime(reply.time, MAX_DATA_SIZE, request.format, local_time);
-        reply.bytes = data_bytes;
+        size_t data_bytes = strftime(reply.time, MAX_DATA_SIZE-1, request.format, local_time) + 1;
+        reply.bytes = htonl(data_bytes);
+        int reply_len = sizeof(reply.bytes) + data_bytes;
 
         // send reply back to client
-        if (sendto(s, &reply, bytes+4, 0, (struct sockaddr *)&peer_addr, sizeof(peer_addr)) == -1) {
+        if (sendto(s, &reply, reply_len, 0, (struct sockaddr *)&peer_addr, sizeof(peer_addr)) == -1) {
             perror("Failed to send");
             return -1;
         }

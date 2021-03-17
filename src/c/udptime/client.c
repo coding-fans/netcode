@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2021-02-23 19:35:34
  * Last Modified by: fasion
- * Last Modified time: 2021-02-25 09:13:36
+ * Last Modified time: 2021-03-17 13:40:02
  */
 
 #include <arpa/inet.h>
@@ -50,12 +50,14 @@ int main(int argc, char *argv[]) {
 
     // build request message
     struct time_request request;
-    request.bytes = strlen(arguments->time_format) + 1;
-    strncpy(request.format, arguments->time_format, MAX_FORMAT_SIZE);
+    bzero(&request);
+
+    int format_bytes = stpncpy(request.format, arguments->time_format, MAX_FORMAT_SIZE-1) - request.format + 1;
+    request.bytes = htonl(format_bytes);
+    int request_len = sizeof(request.bytes) + format_bytes;
 
     // send request
-    if (sendto(s, &request, sizeof(request.bytes) + request.bytes, 0,
-            (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
+    if (sendto(s, &request, request_len, 0, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
         perror("Failed to send request");
         return -1;
     }
@@ -68,7 +70,7 @@ int main(int argc, char *argv[]) {
     }
 
     // print reply
-    printf("Receive %d bytes\n", reply.bytes);
+    printf("Receive %d bytes\n", ntohl(reply.bytes));
 
     // print time data
     if (reply.bytes > 0) {
