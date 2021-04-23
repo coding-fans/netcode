@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2021-02-01 14:30:04
  * Last Modified by: fasion
- * Last Modified time: 2021-02-22 17:17:22
+ * Last Modified time: 2021-03-26 15:37:56
  */
 
 #include <arpa/inet.h>
@@ -168,6 +168,7 @@ int ping(const char *ip) {
     int ret = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
     if (ret == -1) {
         perror("set socket option");
+        close(s);
         return -1;
     }
 
@@ -197,6 +198,8 @@ int ping(const char *ip) {
             perror("Receive failed");
         }
     }
+
+    close(s);
 
     return 0;
 }
