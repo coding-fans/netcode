@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Reward{% endblock %}
+
+{% block main %}
+<div></div>
+<form action="/reward?receiver_id={{ receiver.id }}" method="post">
+  </label><input type="hidden" name="receiver_id" value="{{ receiver.id }}">
+  <label>Coins：</label><input type="number" name="coins">
+  <input type="submit" value="Confirm">
+</form>
+{% endblock %}

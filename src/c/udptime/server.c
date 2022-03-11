@@ -97,5 +97,13 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    close(s);
+
     return 0;
+
+error_exit:
+
+    close(s);
+
+    return -1;
 }

@@ -1,8 +1,8 @@
 /*
  * Author: fasion
- * Created time: 2020-10-27 20:22:53
+ * Created time: 2021-05-13 18:39:50
  * Last Modified by: fasion
- * Last Modified time: 2022-02-28 09:51:27
+ * Last Modified time: 2022-02-28 11:51:55
  */
 
 #include <argp.h>
@@ -17,6 +17,10 @@ static error_t server_opt_handler(int key, char *arg, struct argp_state *state) 
     struct server_cmdline_arguments *arguments = state->input;
 
     switch(key) {
+        case 'i':
+            arguments->bind_ip = arg;
+            break;
+
         case 'p':
             if (sscanf(arg, "%d", &arguments->port) != 1) {
                 return ARGP_ERR_UNKNOWN;
@@ -44,11 +48,14 @@ static error_t server_opt_handler(int key, char *arg, struct argp_state *state) 
  **/
 const struct server_cmdline_arguments *parse_server_arguments(int argc, char *argv[]) {
     // docs for program and options
-    static char const doc[] = "server: udp time server";
+    static char const doc[] = "server: tcp upper server";
     static char const args_doc[] = "";
 
     // command line options
     static struct argp_option const options[] = {
+        // Option -i --bind-ip: server address
+        {"bind-ip", 'i', "BIND_IP", 0, "bind ip"},
+
         // Option -p --port: listen port
         {"port", 'p', "PORT", 0, "listen port"},
 
@@ -67,6 +74,7 @@ const struct server_cmdline_arguments *parse_server_arguments(int argc, char *ar
 
     // for storing results
     static struct server_cmdline_arguments arguments = {
+        .bind_ip = "0.0.0.0",
         .port = 9999,
     };
 
@@ -85,10 +93,6 @@ static error_t client_opt_handler(int key, char *arg, struct argp_state *state) 
     switch(key) {
         case 'i':
             arguments->server_ip = arg;
-            break;
-
-        case 'f':
-            arguments->time_format = arg;
             break;
 
         case 'p':
@@ -118,16 +122,13 @@ static error_t client_opt_handler(int key, char *arg, struct argp_state *state) 
  **/
 const struct client_cmdline_arguments *parse_client_arguments(int argc, char *argv[]) {
     // docs for program and options
-    static char const doc[] = "client: udp time client";
+    static char const doc[] = "client: tcp upper client";
     static char const args_doc[] = "";
 
     // command line options
     static struct argp_option const options[] = {
-        // Option -i --server-ip: server address
+        // Option -a --address: server address
         {"server-ip", 'i', "SERVER_IP", 0, "server ip"},
-
-        // Option -f --time-format: time format
-        {"time-format", 'f', "TIME_FORMAT", 0, "time format"},
 
         // Option -p --port: server port
         {"server-port", 'p', "SERVER_PORT", 0, "listen port"},
@@ -149,7 +150,6 @@ const struct client_cmdline_arguments *parse_client_arguments(int argc, char *ar
     static struct client_cmdline_arguments arguments = {
         .server_ip = "127.0.0.1",
         .server_port = 9999,
-        .time_format = "%Y-%m-%d %H:%M:%S",
     };
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);

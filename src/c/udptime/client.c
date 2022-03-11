@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2021-02-23 19:35:34
  * Last Modified by: fasion
- * Last Modified time: 2021-03-17 13:40:02
+ * Last Modified time: 2022-02-28 09:48:43
  */
 
 #include <arpa/inet.h>
@@ -45,7 +45,6 @@ int main(int argc, char *argv[]) {
     if (inet_aton(arguments->server_ip, &server_addr.sin_addr) == 0) {
         fprintf(stderr, "Invalid IP: %s\n", arguments->server_ip);
         return -1;
-
     }
 
     // build request message
