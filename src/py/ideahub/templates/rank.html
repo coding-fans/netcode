@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Rank | IdeaHub{% endblock %}
+
+{% block content %}
+<table class="rank card">
+  <tr><th>Rank</th><th>User</th><th>Coins</th></tr>
+  {% for user in users %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ user.username }}</td>
+    <td>{{ user.coins }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
+
+{% block style %}
+<style>
+  table, th, td {
+    border: none;
+    border-collapse: collapse;
+  }
+
+  .rank th, td {
+    text-align: center;
+    padding: 5px 0;
+  }
+
+  .rank tr:nth-of-type(2n+3) {
+    background-color: #c7e8ac;
+  }
+  .rank th {
+    background-color: #a3d977;
+  }
+</style>
+{% endblock %}

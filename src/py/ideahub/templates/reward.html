@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Reward | IdeaHub{% endblock %}
+
+{% block content %}
+<div class="card">
+  <p>Reward coins to <span class="username">{{ receiver.username }}</span>.</p>
+  <form class="reward" action="/reward?receiver_id={{ receiver.id }}" method="post">
+    <input type="hidden" name="receiver_id" value="{{ receiver.id }}">
+    <label>Coins：</label><input type="number" name="coins">
+    <input class="primary" type="submit" value="Reward">
+  </form>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+  .reward input {
+    height: 20px;
+  }
+</style>
+{% endblock %}

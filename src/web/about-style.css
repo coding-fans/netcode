@@ -1,0 +1,106 @@
+* {
+  margin: 0;
+}
+
+body {
+  width: 350px;
+  margin: 0 auto;
+  height: 100%;
+  color: #3c3c3c;
+}
+
+h1 {
+  margin: 10px 0 20px;
+  text-align: left;
+}
+
+a {
+  color: #3c3c3c;
+  font-weight: normal;
+}
+
+a:hover {
+  color: #26CB7C;
+}
+
+section {
+  width: 350px;
+  border: 1px solid #eee;
+  margin: 20px 0;
+  border-radius: 10px;
+  box-shadow: 4px 4px 4px #eee;
+}
+
+p {
+  margin: 20px 0;
+}
+
+.intro {
+  padding: 10px 20px;
+}
+
+img.avatar {
+  width: 50px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.name {
+  font-weight: bold;
+  font-size: 18px;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 0 0 10px;
+}
+
+.follow {
+  margin-left: 10px;
+  font-size: 10px;
+  color: #fff;
+  background-color: #26CB7C;
+  border: none;
+  border-radius: 2px;
+  vertical-align: middle;
+  padding: 0 4px;
+}
+
+.follow:hover {
+  cursor: pointer;
+}
+
+.qrcode-zone {
+  display: none;
+  position: relative;
+}
+
+img.qrcode {
+  width: 150px;
+}
+
+.fold {
+  text-decoration: underline;
+  font-size: 10px;
+  position: absolute;
+  bottom: 14px;
+}
+
+.fold:hover {
+  cursor: pointer;
+  color: #26CB7C;
+}
+
+
+.productions {
+  padding: 10px 20px;
+}
+
+ul {
+  list-style: none;
+  padding-left: 20px;
+}
+
+li {
+  margin: 20px 0;
+}

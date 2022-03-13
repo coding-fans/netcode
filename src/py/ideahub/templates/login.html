@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Login IdeaHub{% endblock %}
+
+{% block content %}
+<form class="login card" action="/login" method="post">
+  <label>User Name</label><input class="input" type="text" name="username">
+  <label>User Pass</label><input class="input" type="password" name="userpass">
+  <input class="primary" type="submit" value="Login">
+</form>
+{% endblock %}
+
+{% block style %}
+<style>
+  .login label {
+    display: block;
+    margin-bottom: 5px;
+    color: #999999;
+  }
+
+  .login input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    height: 25px;
+  }
+
+  .login .input {
+    padding-left: 5px;
+    border: 1px solid #dddddd;
+    box-sizing: border-box;
+  }
+</style>
+{% endblock %}

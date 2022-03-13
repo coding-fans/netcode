@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form class="idea-form" action="/" method="post">
+  <textarea class="card" rows="5" name="content" placeholder="Edit your idea and post it here!"></textarea>
+  <input class="primary" type="submit" value="Post">
+</form>
+
+{% if ideas %}
+<div class="ideas card">
+  {% for idea in ideas %}
+  <div class="idea">
+    <p class="username">{{ idea.introducer_username }}</p>
+    <p class="content">{{ idea.content }}</p>
+
+    <div class="operators">
+      {% if idea.introducer_id == current_user.id %}
+      <form action="/delete-idea/{{ idea.id }}" method="POST">
+        <input class="danger" type="submit" value="Delete">
+      </form>
+      {% endif %}
+
+      {% if idea.introducer_id != current_user.id %}
+      <form action="/reward" method="GET">
+        <input type="hidden" name="receiver_id" value="{{ idea.introducer_id }}">
+        <input class="primary" type="submit" value="Reward">
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block style %}
+<style>
+  .idea-form {
+    width: 100%;
+  }
+  .idea-form textarea {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .idea-form .primary {
+    /* background-color: red; */
+    float: right;
+  }
+  .idea-form::after {
+    content: ' ';
+    display: block;
+    clear: both;
+  }
+
+  .idea {
+    padding: 10px 0;
+    border-bottom: 1px dashed #cccccc;
+  }
+  .idea:first-of-type {
+    padding-top: 0;
+  }
+  .idea:last-of-type {
+    border-bottom: none;
+  }
+  .idea .content {
+    margin: 10px 0;
+  }
+  .idea .operators {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .idea .operators input {
+    margin-left: 10px;
+  }
+</style>
+{% endblock %}

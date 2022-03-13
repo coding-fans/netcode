@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{% block title %}IdeaHub{% endblock %}</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        max-width: 480px;
+        margin: 10px auto;
+        background-color: #EFF2F5;
+      }
+
+      .card {
+        margin: 20px 0;
+        padding: 10px;
+        width: 100%;
+
+        background-color: white;
+        border: 1px solid #dddddd;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+
+      .links a {
+        display: inline-block;
+        margin-right: 10px;
+        text-decoration: none;
+        color: black;
+      }
+      .links a:hover, .links a:active {
+        color: #26CB7C;
+      }
+
+      .username {
+        color: #999999;
+        font-size: 18px;
+      }
+      .coins {
+        color: #7ab648;
+        font-size: 18px;
+        font-weight: bolder;
+      }
+
+      input[type="submit"] {
+        padding: 4px 8px;
+
+        border: none;
+        border-radius: 3px;
+
+        color: white;
+      }
+      input.danger {
+        background-color: #c92d39;
+      }
+      input.primary {
+        background-color: #7ab648;
+      }
+
+      .msg-success {
+        background-color: #c7e8ac;
+      }
+      .msg-fail {
+        background-color: #ffbbb1;
+      }
+
+      .copyright a {
+        color: #7ab648;
+        font-weight: bolder;
+      }
+    </style>
+    {% block style %}{% endblock %}
+  </head>
+  <body>
+    <div class="links card">
+      <a href="/">Home</a>
+      {% if current_user %}<a href="/?introducer_id={{ current_user.id }}">Mine</a>{% endif %}
+      <a href="/rank">Rank</a>
+      <a href="/logout">Logout</a>
+    </div>
+
+    {% if current_user %}
+    <div class="greeting card">
+      <p>Hi <span class="username">{{ current_user.username }}</span>，welcome to IdeaHub!</p>
+      <p>You have <span class="coins">{{ current_user.coins }}</span> coins.</p>
+    </div>
+    {% endif %}
+
+    {% if msg %}
+    <div class="card {% if msgtype %}msg-{{ msgtype }}{% endif %}">
+      {{ msg }}
+    </div>
+    {% endif %}
+
+    <div class="content">{% block content %}{% endblock %}</div>
+
+    <p class="copyright">Powered By <a href="https://fasionchan.com">fasionchan.com</a></p>
+  </body>
+</html>
