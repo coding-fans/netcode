@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script>
+  function render_idea(idea) {
+    var dom = document.createElement('div');
+    dom.setAttribute('class', 'idea');
+
+    var name = document.createElement('p');
+    name.setAttribute('class', 'username');
+    name.innerHTML = idea.introducer_username;
+    dom.appendChild(name);
+
+    // idea content
+    var content = document.createElement('p');
+    content.setAttribute('class', 'content');
+    content.innerHTML = idea.content;
+    dom.appendChild(content);
+
+    return dom;
+  }
+
+  function render_ideas(ideas) {
+    var dom = document.createElement('div');
+    dom.setAttribute('class', 'ideas card');
+    ideas.forEach((idea) => {
+      dom.appendChild(render_idea(idea));
+    });
+    return dom;
+  }
+
+  let request = new XMLHttpRequest();
+  request.open('GET', '/api/ideas', true);
+  request.onreadystatechange = function() {
+    if (request.readyState === 4 && request.status === 200) {
+      var ideas = JSON.parse(request.responseText);
+      if (ideas && ideas.length > 0) {
+        document.querySelector('div[class="content"]').append(render_ideas(ideas))
+      }
+    }
+  }
+  request.send();
+</script>
+{% endblock %}
+
+{% block style %}
+<style>
+  .idea-form {
+    width: 100%;
+  }
+  .idea-form textarea {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .idea-form .primary {
+    /* background-color: red; */
+    float: right;
+  }
+  .idea-form::after {
+    content: ' ';
+    display: block;
+    clear: both;
+  }
+
+  .idea {
+    padding: 10px 0;
+    border-bottom: 1px dashed #cccccc;
+  }
+  .idea:first-of-type {
+    padding-top: 0;
+  }
+  .idea:last-of-type {
+    border-bottom: none;
+  }
+  .idea .content {
+    margin: 10px 0;
+  }
+  .idea .operators {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .idea .operators input {
+    margin-left: 10px;
+  }
+</style>
+{% endblock %}

@@ -5,7 +5,7 @@
 Author: fasion
 Created time: 2022-03-07 17:54:32
 Last Modified by: fasion
-Last Modified time: 2022-03-12 18:05:24
+Last Modified time: 2022-03-20 21:06:16
 '''
 
 import functools
@@ -16,6 +16,7 @@ import time
 
 from flask import (
 	Flask,
+	jsonify,
 	redirect,
 	render_template,
 	request,
@@ -192,3 +193,23 @@ def reward(current_user, db, cursor):
 	db.commit()
 
 	return render_template('reward.html', receiver=receiver, msg="{} coins rewarded to {} successfully".format(coins, receiver['username']), msgtype="success")
+
+@app.route("/api/ideas", methods=['GET'])
+@catch_exception
+@ensure_login
+def fetch_ideas(current_user, db, cursor):
+	introducer_id = request.args.get('introducer_id')
+	if introducer_id:
+		cursor.execute('SELECT Ideas.*, username as introducer_username FROM Ideas LEFT JOIN Users Where Ideas.introducer_id=Users.id AND Users.id=? ORDER BY introduced_ts DESC', (introducer_id,))
+	else:
+		cursor.execute('SELECT Ideas.*, username as introducer_username FROM Ideas LEFT JOIN Users Where Ideas.introducer_id=Users.id ORDER BY introduced_ts DESC')
+
+	ideas = cursor.fetchall()
+	return jsonify(ideas)
+
+
+@app.route("/list", methods=['GET'])
+@catch_exception
+@ensure_login
+def list(current_user, db, cursor):
+	return render_template('list.html', current_user=current_user)
