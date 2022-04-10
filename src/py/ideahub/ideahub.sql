@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2022-03-07 18:13:04
  * Last Modified by: fasion
- * Last Modified time: 2022-03-12 17:28:28
+ * Last Modified time: 2022-04-09 21:17:57
  */
 
 DROP TABLE IF EXISTS Users;
@@ -40,4 +40,5 @@ CREATE TABLE Ideas (
 	introduced_ts INTEGER
 );
 INSERT INTO Ideas VALUES
-	(1, "You can post your wonderful ideas on IdeaHub!", 1, 1646562745);
+	(1, "You can post your wonderful ideas on IdeaHub!", 1, 1646562745),
+	(2, "Hello, IdeaHub!", 2, 1646562745);

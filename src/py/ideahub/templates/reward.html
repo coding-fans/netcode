@@ -5,7 +5,7 @@
 <div class="card">
   <p>Reward coins to <span class="username">{{ receiver.username }}</span>.</p>
   <form class="reward" action="/reward?receiver_id={{ receiver.id }}" method="post">
-    <input type="hidden" name="receiver_id" value="{{ receiver.id }}">
+    {# <input type="hidden" name="csrf_token" value="{{ new_csrf_token() }}"> #}
     <label>Coins：</label><input type="number" name="coins">
     <input class="primary" type="submit" value="Reward">
   </form>
