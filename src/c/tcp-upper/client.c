@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2021-05-13 18:35:10
  * Last Modified by: fasion
- * Last Modified time: 2022-02-28 09:22:47
+ * Last Modified time: 2022-09-28 14:35:43
  */
 
 #include <arpa/inet.h>
@@ -36,22 +36,27 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in server_addr;
     bzero(&server_addr, sizeof(server_addr));
 
+    // fill address family & server port
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(arguments->server_port);
 
+    // fill server ip address
     if (inet_aton(arguments->server_ip, &server_addr.sin_addr) != 1) {
         perror("Bad server address");
         return -1;
     }
 
+    // connect to server
     if (connect(s, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
         perror("Failed to connect server");
         return -1;
     }
 
+    // main loop
     for (;;) {
         printf("> ");
 
+        // read user input
         char line[MAX_LINE_LEN];
         if (fgets(line, MAX_LINE_LEN, stdin) == NULL) {
             printf("\nbye.\n");
@@ -62,22 +67,25 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
+        // send it to server
         if (send(s, line, strlen(line), 0) == -1) {
             perror("Failed to send data");
             return -1;
         }
 
+        // receive response from server
         int bytes = recv(s, line, MAX_LINE_LEN, 0);
         if (bytes == -1) {
             perror("Failed to receive data");
             return -1;
         }
 
+        // write responsed data to stdout
         if (write(STDOUT_FILENO, line, bytes) == -1) {
             perror("Failed to write stdout");
             return -1;
         }
     }
 
-	return 0;
+    return 0;
 }
