@@ -2,7 +2,7 @@
  * Author: fasion
  * Created time: 2021-05-13 18:35:36
  * Last Modified by: fasion
- * Last Modified time: 2022-02-28 11:52:15
+ * Last Modified time: 2022-10-13 17:48:18
  */
 
 #include <arpa/inet.h>
@@ -28,10 +28,8 @@ void uppercase(void *input, int bytes) {
 }
 
 void send_data(int s, void *data, int bytes) {
-    int total_sent = 0;
-
     while (bytes > 0) {
-        int sent = send(s, data+total_sent, bytes, 0);
+        int sent = send(s, data, bytes, 0);
         if (sent == -1) {
             if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
                 continue;
@@ -41,7 +39,7 @@ void send_data(int s, void *data, int bytes) {
             break;
         }
 
-        total_sent += sent;
+        data += sent;
         bytes -= sent;
     }
 }
@@ -78,7 +76,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    // check time format string length
+    // create socket
     int s = socket(PF_INET, SOCK_STREAM, 0);
     if (s == -1) {
         perror("Failed to create socket");
