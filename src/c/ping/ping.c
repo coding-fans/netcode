@@ -168,7 +168,7 @@ int ping(const char *ip) {
     int ret = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
     if (ret == -1) {
         perror("set socket option");
-        close(s);
+        close(sock);
         return -1;
     }
 
@@ -199,7 +199,7 @@ int ping(const char *ip) {
         }
     }
 
-    close(s);
+    close(sock);
 
     return 0;
 }
